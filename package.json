@@ -1,0 +1,31 @@
+{
+  "name": "jellycat-scraper-js",
+  "version": "1.0.0",
+  "description": "Compares Retired Jellycats Against Jellycat Stores",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node .",
+    "clean": "rimraf dist",
+    "dev": "npm-run-all clean build start"
+  },
+  "author": "cheekysim",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/csv-write-stream": "^2.0.0",
+    "@types/node": "^18.13.0",
+    "axios": "^1.3.2",
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^4.1.2",
+    "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.12",
+    "csv-parser": "^3.0.0",
+    "csv-writer": "^1.6.0",
+    "dotenv": "^16.0.3",
+    "mongodb": "^5.0.1",
+    "node-html-parser": "^6.1.4"
+  }
+}

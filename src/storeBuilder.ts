@@ -5,24 +5,21 @@ import db from "./db.js";
 
 const logger = utils.logger;
 
-
+/**
+ * @param name Name of the store
+ * @param url URL of the store
+ * 
+ * @function `configureURL` Configure the URL to scrape
+ * @function `getProductsHTML` Get the products from the HTML
+ * 
+ * @function `configureRequest` Configure the request to send
+ * @function `getProductsXML` Get the products from the XML
+ * 
+ * @function `configureRequest` Configure the request to send
+ * @function `getProductsHTML` Get the products from the HTML
+ */
 class Store {
-    /**
-     * @param name Name of the store
-     * @param url URL of the store
-     * 
-     * Dealing With A URL That Returns HTML
-     * @function configureURL Configure the URL to scrape
-     * @function getProductsHTML Get the products from the HTML
-     * 
-     * Dealing With A Request That Returns XML
-     * @function configureRequest Configure the request to send
-     * @function getProductsXML Get the products from the XML
-     * 
-     * Dealing With A Request That Returns HTML In The XML
-     * @function configureRequest Configure the request to send
-     * @function getProductsHTML Get the products from the HTML
-     */
+    
     // Public variables
     public name: string;
     public url: URL;
@@ -31,17 +28,16 @@ class Store {
     private defaultHeaders: { [key: string]: string };
     private toWrite: any[] = [];
     private maxPages: number | null = null;
-    private limit: number | null = null;
 
     // Constructor
-    public constructor(name: string, url: URL) {
+    public constructor({ name, url }: { name: string; url: URL; }) {
         this.name = name;
         this.url = url;
         this.defaultHeaders = { "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1660.9" }
     }
 
     // Configure URL Base
-    public async configureURL(maxPages: number | null = null, limit: number | null = null) {
+    public async configureURL({ maxPages = null, limit = null }: { maxPages?: number | null; limit?: number | null; }): Promise<void> {
         if (maxPages) {
             this.url.searchParams.set("page", "1");
             this.maxPages = maxPages;
@@ -50,30 +46,29 @@ class Store {
     }
 
     // Configure Request Base
-    public async configureRequest(headers: { [key: string]: string } = this.defaultHeaders, payload: string) {
+    public async configureRequest({ headers = this.defaultHeaders, payload }: { headers: { [key: string]: string; }; payload: string; }): Promise<void> {
 
     }
 
     // Get Products | Expects HTML Response
-    public async getProductsHTML(mainSelector: string, nameSelector: string, priceSelector: string) {
+    public async getProductsHTML({ mainSelector, nameSelector, priceSelector }: { mainSelector: string; nameSelector: string; priceSelector: string; }): Promise<void> {
         if (this.maxPages) {
             for (let page = 1; page <= this.maxPages; page++) {
                 this.url.searchParams.set("page", page.toString());
                 let root = parse((await axios.get(this.url.toString())).data);
                 let products = root.querySelectorAll(mainSelector);
-                this.toWrite = this.toWrite.concat(...await this.getProductInfoHTML(products, nameSelector, priceSelector));
+                this.toWrite = this.toWrite.concat(...await this.getProductInfoHTML({ products, nameSelector, priceSelector }));
             }
         }
         else {
             let root = parse((await axios.get(this.url.toString())).data);
             let products = root.querySelectorAll(mainSelector);
-            this.toWrite = this.toWrite.concat(...await this.getProductInfoHTML(products, nameSelector, priceSelector));
+            this.toWrite = this.toWrite.concat(...await this.getProductInfoHTML({ products, nameSelector, priceSelector }));
         }
-
     }
 
     // Get Product Info | Expects HTML Response
-    public async getProductInfoHTML(products: any[], nameSelector: string, priceSelector: string, trim: string = "") {
+    public async getProductInfoHTML({ products, nameSelector, priceSelector, trim = "" }: { products: any[]; nameSelector: string; priceSelector: string; trim?: string; }): Promise<{ name: any; price: any; }[]> {
         let data = products.map((product) => {
             return {
                 name: product.querySelector(nameSelector).innerText.trim().replace(trim, ""),
@@ -94,7 +89,7 @@ class Store {
     }
 
     // Compare Against Jellycat Database
-    public async compare() {
+    public async compare(): Promise<void> {
         let comparedToWrite = [];
         let jellycats = await db.read("jellycat")
         jellycats.forEach((jellycat) => {

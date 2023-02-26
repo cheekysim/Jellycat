@@ -10,8 +10,8 @@ const pass = utils.decrypt({iv: fs.readFileSync('iv', 'utf8'), key: fs.readFileS
 const newEncryption = utils.encrypt(pass);
 
 // Store new encryption
-fs.writeFile('iv', newEncryption.iv, (err) => {if (logger) console.log(err)});
-fs.writeFile('key', newEncryption.key, (err) => {if (logger) console.log(err)});
+fs.writeFile('iv', newEncryption.iv, (err) => {if (logger && err) console.log(err)});
+fs.writeFile('key', newEncryption.key, (err) => {if (logger && err) console.log(err)});
 utils.updateDotEnv('DBPASS', newEncryption.encryptedData);
 
 const ip = "localhost"

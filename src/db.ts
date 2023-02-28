@@ -34,7 +34,8 @@ async function read(Collection: string, query: any = {}, sort: any = {}) {
     return await collection.find(query).sort(sort).toArray();
 }
 
-async function write(Collection: string, data: any) {
+async function write(Collection: string, data: any[]) {
+    if (data.length === 0) { if (logger) console.log(`No data to write to ${Collection}`); return };
     if (logger) console.log(`Writing ${Collection}...`);
     let con = await client.connect();
     let collection = con.db("jellycats").collection(Collection);

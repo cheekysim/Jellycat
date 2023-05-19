@@ -31,9 +31,17 @@ async function main() {
         nameSelector: "a.full-unstyled-link",
         priceSelector: "div.price > div > div.price__regular > span.price-item",
         trim: " by jellycat"})
-    await shopwales.run();
+    console.log("All Config Done")
+    await scrape([shopwales])
     // let shops = [shopwales.compare()]
     // await Promise.all(shops);
     // thevillagegiftbox();
     await db.close();
+}
+
+async function scrape(stores : Store[]) {
+    stores.forEach((store) => {
+        if (logger) console.log(`Scraping: ${store.name}`)
+        store.run();
+    })
 }

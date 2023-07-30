@@ -3,6 +3,7 @@ import { shopwales } from "./shop-wales.js"
 import { thevillagegiftbox } from "./thevillagegiftbox.js";
 import utils from './utils.js'
 import db from "./db.js";
+import Store from "./storeBuilder.js";
 
 const logger = utils.logger;
 
@@ -21,8 +22,26 @@ async function main() {
     // Drop compared collection
     await db.drop("compared")
     // Trigger every web scraper
-    let shops = [shopwales()]
-    await Promise.all(shops);
+    const shopwalesurl = new URL("https://shopwales.co.uk/collections/all-jellycat")
+    const shopwales = new Store({name: "Shop Wales", url: shopwalesurl})
+    shopwales.configureURL({
+        pages: true,
+        maxPages: 14,
+        mainSelector: "ul#product-grid > li.grid__item",
+        nameSelector: "a.full-unstyled-link",
+        priceSelector: "div.price > div > div.price__regular > span.price-item",
+        trim: " by jellycat"})
+    console.log("All Config Done")
+    await scrape([shopwales])
+    // let shops = [shopwales.compare()]
+    // await Promise.all(shops);
     // thevillagegiftbox();
     await db.close();
+}
+
+async function scrape(stores : Store[]) {
+    stores.forEach((store) => {
+        if (logger) console.log(`Scraping: ${store.name}`)
+        store.run();
+    })
 }
